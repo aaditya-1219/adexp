@@ -33,17 +33,39 @@ def split_data(data, num_partitions):
     return partitions
 
 # Function to perform the join using hash function h2
-def join_data(students, partitions, num_processors, partition_id):
+# def join_data(students, partitions, num_processors, partition_id):
+#     result = []
+#     for partition in partitions:
+#         in_memory_hash = {}
+#         for record in partition:
+#             prn_no = record["PRN NO."]
+#             in_memory_hash[prn_no] = record
+#         for student in students:
+#             prn_no = student["PRN NO."]
+#             processor_id = h2(prn_no, num_processors)
+#             if prn_no in in_memory_hash and processor_id == partition_id:
+#                 record = in_memory_hash[prn_no]
+#                 result.append({
+#                     "PRN NO.": prn_no,
+#                     "Name": student["Name"],
+#                     "Class": student["Class"],
+#                     "Branch": student["Branch"],
+#                     "Attendance": record["Attendance"],
+#                     "Grade": record["Grade"]
+#                 })
+#     return result
+
+# Function to perform the join without hash function h2
+def join_data(students_data, partitions):
     result = []
     for partition in partitions:
         in_memory_hash = {}
         for record in partition:
             prn_no = record["PRN NO."]
             in_memory_hash[prn_no] = record
-        for student in students:
+        for student in students_data:
             prn_no = student["PRN NO."]
-            processor_id = h2(prn_no, num_processors)
-            if prn_no in in_memory_hash and processor_id == partition_id:
+            if prn_no in in_memory_hash:
                 record = in_memory_hash[prn_no]
                 result.append({
                     "PRN NO.": prn_no,
@@ -55,13 +77,14 @@ def join_data(students, partitions, num_processors, partition_id):
                 })
     return result
 
+
 # Hash function h1 to partition the data
 def h1(prn_no, num_partitions):
     return hash(prn_no) % num_partitions
 
 # Hash function h2 to determine where tuples should be joined
-def h2(prn_no, num_processors):
-    return hash(prn_no) % num_processors
+# def h2(prn_no, num_processors):
+#     return hash(prn_no) % num_processors
 
 # Number of partitions
 num_partitions = 4
@@ -70,9 +93,13 @@ num_partitions = 4
 partitions = split_data(performance_data, num_partitions)
 
 # Perform join on partitioned data using hash function h2
-result = []
-for partition_id, partition in enumerate(partitions):
-    result.extend(join_data(students_data, partitions, num_partitions, partition_id))
+# result = []
+# for partition_id, partition in enumerate(partitions):
+#     result.extend(join_data(students_data, partitions, num_partitions, partition_id))
+
+# Perform join on partitioned data without hash function h2
+result = join_data(students_data, partitions)
+
 
 # Display the result in a table format
 result_table = PrettyTable(["PRN NO.", "Name", "Class", "Branch", "Attendance", "Grade"])
